@@ -1,0 +1,85 @@
+def eliminate_implication(formula):
+  # Replace each implication with negation and or like A->B=not A or B
+  return formula.replace("->", "||").replace("→", "||").replace("⇒", "||")
+#Second
+def apply_demorgan_law(formula):
+  formula = formula.replace("~(", "not(") 
+  formula = formula.replace("~not ", "") 
+  formula=formula.replace("&","||")
+  formula=formula.replace("&","||")
+  return formula
+  #Third
+def Remove_double_not(formula):
+  formula=formula.replace("~~","")
+  return formula;
+#Fourth
+def standardize_variable_scope(formula):
+  counter=1;
+  while "∀" in formula or "∃" in formula:
+    formula = formula.replace("∀", f"forall_{counter}", 1)
+    formula = formula.replace("∃", f"exists_{counter}", 1)
+    counter += 1
+  return formula;
+#Fifth CNF
+def convert_to_cnf(formula):
+    #  Eliminate implications
+    formula = formula.replace("->", "|").replace("→", "|").replace("⇒", "|")
+    #  Distribute disjunctions over conjunctions
+    parts = formula.split('&')
+    cnf_parts = []
+    for part in parts:
+        cnf_parts.append(distribute_disjunction_over_conjunction(part))
+    return ' & '.join(cnf_parts)
+
+def distribute_disjunction_over_conjunction(part):
+    # Distribute disjunction over conjunction by splitting into multiple clauses
+    disjunctions = part.split('|')
+    return ' & '.join(['(' + d.strip() + ')' for d in disjunctions])
+#Sixth
+def eliminate_universal_quantifiers(formula):
+    
+    return formula.replace('∀', '').replace(' ', '').replace('(', '').replace(')', '').replace(',', '').replace('∧', '')
+#Seventh
+def skolemize(formula):
+    skolem_functions = {}  
+    while '∃' in formula:
+        existential_index = formula.find('∃')
+        variable = formula[existential_index + 2] 
+        
+        skolem_function = f'f_{variable}'
+        
+        formula = formula.replace(f'∃ {variable}', skolem_function)
+       
+        skolem_functions[variable] = skolem_function
+    for variable, skolem_function in skolem_functions.items():
+        formula = formula.replace(variable, skolem_function)
+    return formula
+# First Example
+formula_1 = "(P(x) -> Q(y)) & (R(z) → S(x))"
+eliminated_formula = eliminate_implication(formula_1)
+print("Eliminated Implication Formula:", eliminated_formula)
+
+# Second Example
+formula_2 = "~(P(x) & Q(y))"
+resulted_formula = apply_demorgan_law(formula_2)
+print("Transformed Formula:", resulted_formula)
+#Third Example
+formula_3="~~P(X)";
+resulted_formula_1=Remove_double_not(formula_3);
+print("Tramsformed Formula: ",resulted_formula_1)
+#Fourth example
+formula_4 = "∀ x ∃ y (P(x, y) ∧ Q(y, z))"
+standardized_formula = standardize_variable_scope(formula_4)
+print("Standardized Formula:", standardized_formula)
+#Fifth Example
+formula = "(P(x) → Q(y)) & (T(z) | V(x))"
+cnf_formula = convert_to_cnf(formula)
+print("CNF Formula:", cnf_formula)
+#Sixth Example
+formula_6 = "∀x (P(x) ∧ Q(y))"
+instantiated_formula = eliminate_universal_quantifiers(formula_6)
+print("Instantiated Formula:", instantiated_formula)
+#seventh
+formula = "∃x (P(x) ∧ Q(y))"
+skolemized_formula = skolemize(formula)
+print("Skolemized Formula:", skolemized_formula)
